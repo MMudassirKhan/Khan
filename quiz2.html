@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Legendary Web Dev Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;600;900&display=swap');
+        
+        :root {
+            --primary: #6e45e2;
+            --secondary: #88d3ce;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --accent: #ff4d4d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        
+        /* Cosmic Background Elements */
+        .cosmos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+            opacity: 0;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: var(--opacity); transform: scale(1); }
+        }
+        
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            mix-blend-mode: screen;
+            animation: drift var(--drift-duration) infinite linear;
+        }
+        
+        @keyframes drift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(var(--drift-x), var(--drift-y)) rotate(360deg); }
+        }
+        
+        /* Main Container */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 50px rgba(110, 69, 226, 0.3);
+            border: 1px solid rgba(110, 69, 226, 0.2);
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent,
+                transparent,
+                transparent,
+                var(--primary),
+                transparent
+            );
+            transform: rotate(30deg);
+            animation: shine 6s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-10%, -10%); }
+            100% { transform: rotate(30deg) translate(10%, 10%); }
+        }
+        
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideDown 0.8s 0.2s forwards;
+        }
+        
+        @keyframes slideDown {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(110, 69, 226, 0.3);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+        }
+        
+        /* Language Selection */
+        .language-selection {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            transform: scale(0.8);
+            opacity: 0;
+            animation: scaleIn 0.8s 0.4s forwards;
+        }
+        
+        @keyframes scaleIn {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .language-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, var(--primary), #8a2be2);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.4);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+        
+        .language-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .language-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(110, 69, 226, 0.6);
+        }
+        
+        .language-btn:hover::before {
+            left: 100%;
+        }
+        
+        .language-btn.active {
+            background: linear-gradient(45deg, var(--accent), #ff6b6b);
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.6);
+        }
+        
+        /* Quiz Container */
+        .quiz-container {
+            display: none;
+            transform: translateX(-50px);
+            opacity: 0;
+            animation: slideIn 0.8s 0.6s forwards;
+        }
+        
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .question-container {
+            margin-bottom: 2rem;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .option-btn {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+        
+        .option-btn:hover::before {
+            width: 10px;
+        }
+        
+        .option-btn.selected {
+            background: rgba(110, 69, 226, 0.2);
+            border-color: var(--primary);
+            transform: translateX(10px);
+        }
+        
+        .option-btn.selected::before {
+            width: 100%;
+            opacity: 0.2;
+        }
+        
+        .option-btn.correct {
+            background: rgba(40, 167, 69, 0.2);
+            border-color: #28a745;
+        }
+        
+        .option-btn.incorrect {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: #dc3545;
+        }
+        
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        .nav-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, var(--primary), #8a2be2);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.4);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(110, 69, 226, 0.6);
+        }
+        
+        .nav-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Progress */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Results */
+        .results-container {
+            text-align: center;
+            display: none;
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        
+        .results-container.show {
+            display: block;
+            animation: popIn 0.8s forwards;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .score-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .celebration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+        
+        /* Music Player */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .music-control:hover {
+            transform: scale(1.1);
+            background: rgba(110, 69, 226, 0.3);
+        }
+        
+        .music-control i {
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 1.5rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .language-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .language-btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="cosmos" id="cosmos"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">ULTRA LEGENDARY QUIZ</h1>
+            <p class="subtitle">Test your web development knowledge with this epic challenge!</p>
+        </div>
+        
+        <div class="language-selection" id="languageSelection">
+            <button class="language-btn" data-language="html">HTML</button>
+            <button class="language-btn" data-language="css">CSS</button>
+            <button class="language-btn" data-language="javascript">JavaScript</button>
+        </div>
+        
+        <div class="quiz-container" id="quizContainer">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-btn" id="prevBtn" disabled>Previous</button>
+                <button class="nav-btn" id="nextBtn">Next</button>
+                <button class="nav-btn" id="submitBtn" style="display: none;">Submit</button>
+            </div>
+        </div>
+        
+        <div class="results-container" id="resultsContainer">
+            <h2>Quiz Completed!</h2>
+            <div class="score" id="score"></div>
+            <p class="score-text" id="scoreText"></p>
+            <button class="nav-btn" id="restartBtn">Try Again</button>
+        </div>
+    </div>
+    
+    <div class="music-control" id="musicControl">
+        <i class="fas fa-music"></i>
+        <audio id="bgMusic" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+    
+    <script>
+        // Quiz data for each language
+        const quizData = {
+            html: [
+                {
+                    question: "What does HTML stand for?",
+                    options: [
+                        "Hyper Text Markup Language",
+                        "High Tech Modern Language",
+                        "Hyperlinks and Text Markup Language",
+                        "Home Tool Markup Language"
+                    ],
+                    answer: "Hyper Text Markup Language"
+                },
+                {
+                    question: "Which HTML element is used to define the structure of an HTML document?",
+                    options: [
+                        "<html>",
+                        "<head>",
+                        "<body>",
+                        "<!DOCTYPE>"
+                    ],
+                    answer: "<!DOCTYPE>"
+                },
+                {
+                    question: "Which attribute is used to provide a unique name to an HTML element?",
+                    options: [
+                        "class",
+                        "id",
+                        "name",
+                        "type"
+                    ],
+                    answer: "id"
+                },
+                {
+                    question: "Which HTML5 element is used to play audio files?",
+                    options: [
+                        "<sound>",
+                        "<audio>",
+                        "<mp3>",
+                        "<media>"
+                    ],
+                    answer: "<audio>"
+                },
+                {
+                    question: "What is the purpose of the <canvas> element in HTML5?",
+                    options: [
+                        "To display database records",
+                        "To draw graphics on the fly via scripting",
+                        "To create a container for form elements",
+                        "To display a 3D model"
+                    ],
+                    answer: "To draw graphics on the fly via scripting"
+                }
+            ],
+            css: [
+                {
+                    question: "What does CSS stand for?",
+                    options: [
+                        "Computer Style Sheets",
+                        "Creative Style Sheets",
+                        "Cascading Style Sheets",
+                        "Colorful Style Sheets"
+                    ],
+                    answer: "Cascading Style Sheets"
+                },
+                {
+                    question: "Which CSS property is used to change the text color of an element?",
+                    options: [
+                        "text-color",
+                        "font-color",
+                        "color",
+                        "text-style"
+                    ],
+                    answer: "color"
+                },
+                {
+                    question: "How do you select an element with the id 'header' in CSS?",
+                    options: [
+                        ".header",
+                        "#header",
+                        "*header",
+                        "header"
+                    ],
+                    answer: "#header"
+                },
+                {
+                    question: "Which CSS property is used to create space between the element's border and inner content?",
+                    options: [
+                        "margin",
+                        "padding",
+                        "spacing",
+                        "border-space"
+                    ],
+                    answer: "padding"
+                },
+                {
+                    question: "What is the purpose of the z-index property in CSS?",
+                    options: [
+                        "To control the horizontal position of an element",
+                        "To control the vertical position of an element",
+                        "To control the stacking order of elements",
+                        "To create 3D effects"
+                    ],
+                    answer: "To control the stacking order of elements"
+                }
+            ],
+            javascript: [
+                {
+                    question: "Which of the following is NOT a JavaScript data type?",
+                    options: [
+                        "String",
+                        "Boolean",
+                        "Object",
+                        "Float"
+                    ],
+                    answer: "Float"
+                },
+                {
+                    question: "What will 'typeof null' return in JavaScript?",
+                    options: [
+                        "null",
+                        "undefined",
+                        "object",
+                        "string"
+                    ],
+                    answer: "object"
+                },
+                {
+                    question: "What is the purpose of the 'this' keyword in JavaScript?",
+                    options: [
+                        "It refers to the previous object",
+                        "It refers to the current object",
+                        "It refers to the parent object",
+                        "It creates a new object"
+                    ],
+                    answer: "It refers to the current object"
+                },
+                {
+                    question: "Which method is used to add an element to the end of an array?",
+                    options: [
+                        "push()",
+                        "pop()",
+                        "shift()",
+                        "unshift()"
+                    ],
+                    answer: "push()"
+                },
+                {
+                    question: "What does the '=== ' operator do in JavaScript?",
+                    options: [
+                        "It assigns a value to a variable",
+                        "It compares values for equality without type coercion",
+                        "It compares values for equality with type coercion",
+                        "It checks if a value is greater than another"
+                    ],
+                    answer: "It compares values for equality without type coercion"
+                }
+            ]
+        };
+        
+        // DOM Elements
+        const languageSelection = document.getElementById('languageSelection');
+        const quizContainer = document.getElementById('quizContainer');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const progressBar = document.getElementById('progressBar');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const scoreElement = document.getElementById('score');
+        const scoreTextElement = document.getElementById('scoreText');
+        const musicControl = document.getElementById('musicControl');
+        const bgMusic = document.getElementById('bgMusic');
+        const cosmos = document.getElementById('cosmos');
+        
+        // Quiz state
+        let currentLanguage = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let musicPlaying = false;
+        
+        // Initialize cosmic background
+        function initCosmos() {
+            // Create stars
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.setProperty('--duration', `${Math.random() * 5 + 3}s`);
+                star.style.setProperty('--opacity', `${Math.random() * 0.7 + 0.3}`);
+                cosmos.appendChild(star);
+            }
+            
+            // Create nebulas
+            for (let i = 0; i < 3; i++) {
+                const nebula = document.createElement('div');
+                nebula.classList.add('nebula');
+                const size = Math.random() * 300 + 200;
+                nebula.style.width = `${size}px`;
+                nebula.style.height = `${size}px`;
+                nebula.style.left = `${Math.random() * 100}%`;
+                nebula.style.top = `${Math.random() * 100}%`;
+                nebula.style.backgroundColor = i === 0 ? '#6e45e2' : i === 1 ? '#88d3ce' : '#ff4d4d';
+                nebula.style.setProperty('--drift-duration', `${Math.random() * 120 + 60}s`);
+                nebula.style.setProperty('--drift-x', `${Math.random() * 200 - 100}px`);
+                nebula.style.setProperty('--drift-y', `${Math.random() * 200 - 100}px`);
+                cosmos.appendChild(nebula);
+            }
+        }
+        
+        // Start music
+        function toggleMusic() {
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicControl.innerHTML = '<i class="fas fa-music"></i>';
+            } else {
+                bgMusic.play();
+                musicControl.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            musicPlaying = !musicPlaying;
+        }
+        
+        // Language selection
+        languageSelection.addEventListener('click', (e) => {
+            if (e.target.classList.contains('language-btn')) {
+                const languageBtns = document.querySelectorAll('.language-btn');
+                languageBtns.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                currentLanguage = e.target.dataset.language;
+                currentQuestions = quizData[currentLanguage];
+                userAnswers = new Array(currentQuestions.length).fill(null);
+                
+                // Start quiz with animation
+                setTimeout(() => {
+                    languageSelection.style.display = 'none';
+                    quizContainer.style.display = 'block';
+                    showQuestion();
+                }, 500);
+                
+                // Start music
+                toggleMusic();
+            }
+        });
+        
+        // Show current question
+        function showQuestion() {
+            const currentQuestion = currentQuestions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            
+            optionsElement.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.classList.add('option-btn');
+                optionBtn.textContent = option;
+                
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionBtn.classList.add('selected');
+                }
+                
+                optionBtn.addEventListener('click', () => selectOption(index));
+                optionsElement.appendChild(optionBtn);
+            });
+            
+            // Update progress
+            progressBar.style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
+            
+            // Update navigation buttons
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === currentQuestions.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+        }
+        
+        // Select option
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            
+            const optionBtns = document.querySelectorAll('.option-btn');
+            optionBtns.forEach((btn, index) => {
+                btn.classList.remove('selected');
+                if (index === optionIndex) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+        
+        // Next question
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        });
+        
+        // Previous question
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        });
+        
+        // Submit quiz
+        submitBtn.addEventListener('click', () => {
+            calculateScore();
+            showResults();
+        });
+        
+        // Calculate score
+        function calculateScore() {
+            score = 0;
+            currentQuestions.forEach((question, index) => {
+                if (userAnswers[index] !== null && 
+                    question.options[userAnswers[index]] === question.answer) {
+                    score++;
+                }
+            });
+        }
+        
+        // Show results with celebration
+        function showResults() {
+            quizContainer.style.display = 'none';
+            resultsContainer.classList.add('show');
+            
+            scoreElement.textContent = `${score}/${currentQuestions.length}`;
+            
+            const percentage = (score / currentQuestions.length) * 100;
+            let message = '';
+            
+            if (percentage >= 80) {
+                message = "Legendary! You're a coding wizard! 🧙‍♂️";
+                createCelebration(100);
+            } else if (percentage >= 60) {
+                message = "Great job! You know your stuff! 💪";
+                createCelebration(50);
+            } else if (percentage >= 40) {
+                message = "Not bad! Keep learning! 📚";
+                createCelebration(20);
+            } else {
+                message = "Keep practicing! You'll get there! 👊";
+            }
+            
+            scoreTextElement.textContent = message;
+        }
+        
+        // Create celebration particles
+        function createCelebration(count) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('celebration');
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.width = `${Math.random() * 10 + 5}px`;
+                particle.style.height = particle.style.width;
+                particle.style.animation = `fly ${Math.random() * 3 + 2}s linear forwards`;
+                
+                document.body.appendChild(particle);
+                
+                // Animation
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 5 + 5;
+                const x = Math.cos(angle) * velocity;
+                const y = Math.sin(angle) * velocity;
+                
+                let posX = 50;
+                let posY = 50;
+                let opacity = 1;
+                
+                const animate = () => {
+                    posX += x;
+                    posY += y;
+                    opacity -= 0.02;
+                    
+                    particle.style.left = `${posX}%`;
+                    particle.style.top = `${posY}%`;
+                    particle.style.opacity = opacity;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+        }
+        
+        // Restart quiz
+        restartBtn.addEventListener('click', () => {
+            resultsContainer.classList.remove('show');
+            languageSelection.style.display = 'flex';
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = new Array(currentQuestions.length).fill(null);
+        });
+        
+        // Music control
+        musicControl.addEventListener('click', toggleMusic);
+        
+        // Initialize
+        initCosmos();
+        
+        // Mouse move effect on container
+        const container = document.querySelector('.container');
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            container.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+        
+        // Reset container position when mouse leaves
+        document.addEventListener('mouseleave', () => {
+            container.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        });
+    </script>
+</body>
+</html>
